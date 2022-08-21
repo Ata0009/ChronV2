@@ -1,0 +1,16 @@
+{
+  "name": "chron",
+  "version": "1.0.0",
+  "description": "Chron, a multifunction discord bot that may go open source.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ata0009#3334",
+  "license": "ISC",
+  "dependencies": {
+    "ascii-table": "^0.0.9",
+    "discord.js": "^14.2.0",
+    "glob": "^8.0.3"
+  }
+}
