@@ -12,6 +12,8 @@ const client = new Client({
   partials: [User, Message, GuildMember, ThreadMember],
 });
 
+require("./Handlers/AntiCrash.js")(client);
+
 const { loadEvents } = require("./Handlers/eventHandler");
 
 client.config = require("./config.json");
