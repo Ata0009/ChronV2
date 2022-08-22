@@ -4,9 +4,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("ping")
-    .setDescription("Reponds with pong!"),
+  data: new SlashCommandBuilder().setName("ping").setDescription("Pong!"),
   /**
    *
    * @param {ChatInputCommandInteraction} interaction
