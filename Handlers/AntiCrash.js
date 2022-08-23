@@ -1,4 +1,4 @@
-const { EmbedBuilder, WebhookClient } = require("discord.js");
+const { EmbedBuilder, WebhookClient, InteractionCollector } = require("discord.js");
 const { inspect } = require("util");
 const webhook = new WebhookClient({
     url: "https://discord.com/api/webhooks/1011243310419021854/GviTCYpSS9AKeOMt0GzAgg79GB7FOsXIG7WIdYxp0f4WFx8JNEUz-QRiuDNjaFoVpKmF"
@@ -31,7 +31,7 @@ module.exports = (client) => {
                 { name: "Promise", value: `\`\`\`${inspect(promise, { depth: 0 }).slice(0, 1000)}\`\`\`` }
             )
             .setTimestamp();
-
+            
         return webhook.send({ embeds: [embed] });
     });
     
