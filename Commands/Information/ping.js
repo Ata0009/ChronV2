@@ -10,13 +10,16 @@ module.exports = {
    *
    * @param {ChatInputCommandInteraction} interaction
    */
-  execute(interaction, client) {
-    const PingEmbed = new EmbedBuilder()
+  async execute(interaction, client) {
+      
+    await interaction.reply({embeds: [new EmbedBuilder().setColor("#00A86B").setDescription(`🔍   Pinging`)]})
+    const pingedEmbed = new EmbedBuilder()
+      .setTitle("🏓 Pong")
       .setColor("#00A86B")
-      .setTitle("🏓 Pong!")
-      .setDescription(`⌛ **Api Latency:** \`${Math.round(client.ws.ping)}ms\``)
-      .setTimestamp();
-    //Seperator ---------------------------------------------------------------------------
-    interaction.reply({ embeds: [PingEmbed] });
+      .setDescription(
+        `**🤖 Bot Latency:** \`${interaction.createdTimestamp - Date.now()}ms\`\n\n⌛ **Api Latency:** \`${Math.round(client.ws.ping)}ms\``
+      )
+      .setTimestamp()
+      interaction.editReply({ embeds: [pingedEmbed] })
   },
 };
