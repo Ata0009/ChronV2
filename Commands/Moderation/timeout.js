@@ -7,13 +7,21 @@ const {
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("ban")
-    .setDescription("Bans the target member")
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .setName("timeout")
+    .setDescription("Sends the target member to the naughty corner!")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .addUserOption((option) =>
       option
         .setName("target")
-        .setDescription("The member you want to ban.")
+        .setDescription("The member you want to kick.")
+        .setRequired(true)
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("time")
+        .setDescription(
+          "The amount of time you want to send this user to the naughty corner for."
+        )
         .setRequired(true)
     )
     .addStringOption((option) =>
@@ -27,30 +35,18 @@ module.exports = {
     const user = interaction.options.getUser("target");
     const target = interaction.options.getMember("target");
     let reason = interaction.options.getString("reason");
+    const time = interaction.options.getInteger("time");
     const member = await interaction.guild.members
       .fetch(user.id)
       .catch(console.error);
 
     if (!reason) reason = "Unspecified reason.";
-    if (user.id === interaction.user.id) {
-      interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Yellow")
-            .setDescription("You cannot ban yourself!"),
-        ],
-        ephemeral: true,
-      });
-      return;
-    }
     if (user.id === client.user.id) {
       interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Yellow")
-            .setDescription(
-              "Why are you trying to ban me? Thats not very nice!"
-            ),
+            .setDescription("You cannot timeout me!"),
         ],
         ephemeral: true,
       });
@@ -64,43 +60,48 @@ module.exports = {
           new EmbedBuilder()
             .setColor("Red")
             .setDescription(
-              "This member has a higher role than you so I cannot ban them."
+              "This member has a higher role than you so I cannot timeout them."
             ),
         ],
         ephemeral: true,
       });
       return;
     }
-    if (!interaction.guild.members.me.permissions.has("BanMembers")) {
+    if (!interaction.guild.members.me.permissions.has("ModerateMembers")) {
       interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription("I do not have the permission to ban members."),
+            .setDescription("I do not have the permission to timeout members."),
+        ],
+        ephemeral: true,
+      });
+      return;
+    }
+    if (user.id === interaction.user.id) {
+      interaction.reply({
+        embeds: [
+          embed
+            .setColor("Yellow")
+            .setDescription("You cannot timeout yourself!"),
         ],
         ephemeral: true,
       });
       return;
     }
 
-    const banEmbed = new EmbedBuilder()
-      .setTitle(`You have been banned from ${interaction.guild.name}!`)
+    const timeout = new EmbedBuilder()
+      .setTitle(`You have been timed out in ${interaction.guild.name}!`)
       .setColor("#e74c3c")
-      .setThumbnail(target.user.avatarURL({ dynamic: true }))
       .setDescription(
-        `**Banned By**\n${interaction.member.user.tag}\n\n**Ban Time** \n${new Date().toLocaleString()}\n\n**Reason**\n\`\`\`${reason}\`\`\``
+        `**Timed Out By**\n${interaction.member.user.tag}\n\n**Timeout Time** \n${interaction.createdTimestamp}\n\n**Reason**\n\`\`\`${reason}\`\`\``
       );
 
-      await member
-      .ban({
-        deleteMessageDays: 1,
-        reason: reason,
-      })
-      .catch(console.error);
+      await member.timeout(time * 60 * 1000, reason).catch(console.error);
     
-      await target
+      await user
       .send({
-        embeds: [banEmbed],
+        embeds: [timeout],
       })
       .catch(async (err) => {
         await interaction.followUp({
@@ -115,16 +116,17 @@ module.exports = {
         });
       });
 
-    const modbanEmbed = new EmbedBuilder()
-      .setTitle(`Banned ${user.tag}`)
+    const timeoutResponse = new EmbedBuilder()
+      .setTitle(`Sent ${user.tag} to the naughty corner!`)
       .setColor("#2ecc71")
-      .setThumbnail(target.user.avatarURL({ dynamic: true }))
       .setDescription(
-        `**Banned By**\n${interaction.member.user.tag}\n\n**Ban Time** \n${new Date().toLocaleString()}\n\n**Reason**\n\`\`\`${reason}\`\`\``
+        `**Timed Out By**\n${
+          interaction.member.user.tag
+        }\n\n**Timeout Time** \n${new Date().toLocaleString()}\n\n**Reason**\n\`\`\`${reason}\`\`\``
       );
 
     await interaction.reply({
-      embeds: [modbanEmbed],
+      embeds: [timeoutResponse],
     });
   },
 };

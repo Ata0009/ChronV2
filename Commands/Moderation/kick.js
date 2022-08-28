@@ -88,28 +88,29 @@ module.exports = {
         `**Kicked By**\n${interaction.member.user.tag}\n\n**Kick Time** \n${interaction.createdTimestamp}\n\n**Reason**\n\`\`\`${reason}\`\`\``
       );
 
-    await user
+      await member.kick(reason).catch(console.error)
+    
+      await user
       .send({
         embeds: [kickEmbed],
       })
-      .catch(console.log("User DMs' Are Off"));
-
-    await member.kick(reason).catch(async (err) => {
-      await interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              `I could not DM ${user.username} since they don't have dms on.`
-            ),
-        ],
-        ephemeral: true,
+      .catch(async (err) => {
+        await interaction.followUp({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(
+                `I could not DM ${user.username} since they don't have dms on.`
+              ),
+          ],
+          ephemeral: true,
+        });
       });
-    });
 
     const modkickEmbed = new EmbedBuilder()
       .setTitle(`Kicked ${user.tag}`)
       .setColor("#2ecc71")
+      .setThumbnail(target.user.avatarURL({ dynamic: true }))
       .setDescription(
         `**Kicked By**\n${interaction.member.user.tag}\n\n**Kick Time** \n${new Date().toLocaleString()}\n\n**Reason**\n\`\`\`${reason}\`\`\``
       );

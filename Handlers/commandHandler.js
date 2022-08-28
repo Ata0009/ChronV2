@@ -20,7 +20,7 @@ async function loadCommands(client) {
 
   client.application.commands.set(commandsArray);
 
-  return console.log(table.toString(), "\nCommands Loaded");
+  return console.log(table.toString(), "\nSuccessfully  Loaded (/) Commands");
 }
 
 module.exports = { loadCommands };
