@@ -84,10 +84,59 @@ module.exports = {
     const target = interaction.options.getMember("target");
     const reason =
       interaction.options.getString("reason") || "Unspecified Reason";
-    const warnID = interaction.options.getInteger("warnid");
+    const warnID = interaction.options.getInteger("warnid") + 1;
     const warnDate = new Date(interaction.createdTimestamp.toLocaleString());
 
     if (sub === "add") {
+      db.findOne(
+        {
+          GuildID: interaction.guildId,
+          UserID: target.id,
+          UserTag: target.user.tag,
+        },
+        async (err, data) => {
+          if (err) throw err;
+          if (!data) {
+            data = new db({
+              GuildID: interaction.guildId,
+              UserID: target.id,
+              UserTag: target.user.tag,
+              Content: [
+                {
+                  ExecuterID: interaction.member.user.id,
+                  ExecuterTag: interaction.member.user.tag,
+                  Reason: reason,
+                  Date: warnDate,
+                },
+              ],
+            });
+          } else {
+            const obj = {
+              ExecuterID: interaction.member.user.id,
+              ExecuterTag: interaction.member.user.tag,
+              Reason: reason,
+              Date: warnDate,
+            };
+            data.Content.push(obj);
+          }
+          data.save();
+        }
+      );
+
+      interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle("Added Warning")
+            .setColor("Blurple")
+            .setDescription(
+              `**Warning Details** \n\n**Warning Date**\n${
+                new Date().toLocaleDateString
+              }\n\n**Target Details**\n${target.user.tag} | ||${
+                target.user.id
+              }|| \n\n**WarningID**\n${warnID}\n\n**Reason**\n\`\`\`${reason}\`\`\``
+            ),
+        ],
+      });
     } else if (sub === "check") {
       db.findOne(
         {
@@ -96,34 +145,39 @@ module.exports = {
           UserTag: target.user.tag,
         },
         async (err, data) => {
-            if(err) throw err;
-            if(!data) {
-                data = new db({
-                    GuildID: interaction.guildId,
-                    UserID: target.id,
-                    UserTag: target.user.tag,
-                    Content: [
-                        {
-                            ExecuterID: interaction.member.user.id,
-                            ExecuterTag: interaction.member.user.tag,
-                            Reason: reason,
-                            Date: warnDate
-                        }
-                    ],
-                })
-            } else {
-                const obj = {
-                    ExecuterID: interaction.member.user.id,
-                    ExecuterTag: interaction.member.user.tag,
-                    Reason: reason,
-                    Date: warnDate
-                }
-                data.Content.push(obj)
-            }
-            data.save()
+          if (err) throw err;
+          if (data) {
+            interaction.reply({
+              embeds: [
+                new EmbedBuilder()
+                  .setTitle("Check Warnings")
+                  .setColor("Blurple")
+                  .setDescription(
+                    `${data.Content.map(
+                      (w, i) => `**Warning ID:** \`${
+                        i + 1
+                      }\`\n**Moderator:** \`${
+                        w.ExecuterTag
+                      }\`\n**Warning Date** \`${w.Date}\n**Reason** \n\`\`\`${
+                        w.Reason
+                      }\`\`\`
+                    \n`
+                    ).Join("  ")}`
+                  ),
+              ],
+            });
+          } else {
+            interaction.reply({
+              embeds: new EmbedBuilder()
+                .setTitle("Check Warnings")
+                .setDescription("No Recorded Warnings Found")
+                .setTimestamp()
+            });
+          }
         }
       );
     } else if (sub === "remove") {
+      
     } else if (sub === "clear") {
     }
   },
